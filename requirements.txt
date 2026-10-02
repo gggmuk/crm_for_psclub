@@ -1,0 +1,8 @@
+django
+djangorestframework
+django-cors-headers
+python-dotenv
+requests
+gunicorn
+dj-database-url
+sentry-sdk

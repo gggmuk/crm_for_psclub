@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberLounge — Панель управления</title>
+    <meta name="description" content="CRM-система управления игровым клубом CyberLounge">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body class="text-white">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">🎮</div>
+            <div class="logo-text">
+                <h1>CyberLounge</h1>
+                <span>CRM Dashboard</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="nav-btn active" onclick="switchTab('operational')" id="tab-operational">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                <span>Операции</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('analytics')" id="tab-analytics">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                <span>Аналитика</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('clients')" id="tab-clients">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Клиенты</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('bookings')" id="tab-bookings">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Брони</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('management')" id="tab-management">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <span>Управление</span>
+            </button>
+            <button class="nav-btn" onclick="switchTab('scanner')" id="tab-scanner">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+                <span>QR Сканер</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="clock-widget">
+                <div class="clock-time" id="clock">--:--:--</div>
+                <div class="clock-date" id="clock-date"></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+                <h2 id="page-title">Операции</h2>
+            </div>
+            <div class="topbar-right">
+                <div class="live-indicator"><span class="pulse-dot"></span> Live</div>
+            </div>
+        </header>
+
+        <!-- OPERATIONAL VIEW -->
+        <div id="view-operational" class="view-content">
+            <!-- Quick Stats Row -->
+            <div class="quick-stats">
+                <div class="stat-mini glass-card"><div class="stat-mini-icon bg-blue">🎯</div><div><div class="stat-mini-val" id="qs-active">0</div><div class="stat-mini-label">Активные</div></div></div>
+                <div class="stat-mini glass-card"><div class="stat-mini-icon bg-green">✅</div><div><div class="stat-mini-val" id="qs-completed">0</div><div class="stat-mini-label">Завершены</div></div></div>
+                <div class="stat-mini glass-card"><div class="stat-mini-icon bg-purple">💰</div><div><div class="stat-mini-val" id="qs-revenue">0₽</div><div class="stat-mini-label">Выручка</div></div></div>
+                <div class="stat-mini glass-card"><div class="stat-mini-icon bg-amber">📊</div><div><div class="stat-mini-val" id="qs-occupancy">0%</div><div class="stat-mini-label">Загрузка</div></div></div>
+            </div>
+            <div class="op-grid">
+                <div class="op-places">
+                    <div class="section-header"><h3>🎮 Игровые места</h3><button class="btn-refresh" onclick="fetchPlaces()">↻ Обновить</button></div>
+                    <div id="places-grid" class="places-grid"></div>
+                </div>
+                <div class="op-sidebar">
+                    <div class="glass-card p-card">
+                        <h4>💡 Подсказка</h4>
+                        <p class="ai-text">Зеленое место — свободно, жмите «Начать». Желтое время — сессия скоро закончится.</p>
+                    </div>
+                    <div class="glass-card p-card">
+                        <h4>💰 Тарифы</h4>
+                        <div id="tariffs-list" class="tariffs-sidebar"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ANALYTICS VIEW -->
+        <div id="view-analytics" class="view-content hidden">
+            <div class="analytics-kpis">
+                <div class="kpi-card glass-card"><div class="kpi-icon bg-gradient-blue">💰</div><div class="kpi-body"><div class="kpi-value" id="kpi-revenue">0₽</div><div class="kpi-label">Выручка за день</div></div></div>
+                <div class="kpi-card glass-card"><div class="kpi-icon bg-gradient-purple">📊</div><div class="kpi-body"><div class="kpi-value" id="kpi-occupancy">0%</div><div class="kpi-label">Средняя загрузка</div></div></div>
+                <div class="kpi-card glass-card"><div class="kpi-icon bg-gradient-green">💳</div><div class="kpi-body"><div class="kpi-value" id="kpi-avg-check">0₽</div><div class="kpi-label">Средний чек</div></div></div>
+                <div class="kpi-card glass-card"><div class="kpi-icon bg-gradient-amber">🏆</div><div class="kpi-body"><div class="kpi-value" id="kpi-top-place">N/A</div><div class="kpi-label">Лучшее место</div></div></div>
+            </div>
+            <div class="charts-grid">
+                <div class="glass-card chart-card"><h4>📈 Выручка (30 дней)</h4><div class="chart-wrap"><canvas id="revenueChart"></canvas></div></div>
+                <div class="glass-card chart-card"><h4>🕐 Загрузка по часам</h4><div class="chart-wrap"><canvas id="occupancyChart"></canvas></div></div>
+            </div>
+            <div class="charts-grid">
+                <div class="glass-card chart-card"><h4>🎮 Выручка по типам мест</h4><div class="chart-wrap"><canvas id="typeRevenueChart"></canvas></div></div>
+                <div class="glass-card chart-card"><h4>⏱️ Распределение сессий</h4><div class="chart-wrap"><canvas id="durationChart"></canvas></div></div>
+            </div>
+            <div class="charts-grid">
+                <div class="glass-card chart-card"><h4>👥 Распределение рангов</h4><div class="chart-wrap"><canvas id="rankChart"></canvas></div></div>
+                <div class="glass-card chart-card">
+                    <h4>📊 Сводная статистика</h4>
+                    <div class="summary-stats" id="summary-stats"></div>
+                </div>
+            </div>
+            <div class="glass-card" style="padding:24px;">
+                <div class="section-header"><h4 style="margin:0;">📋 Последние сессии</h4><button class="btn-refresh" onclick="exportSessionsCSV()">⬇ CSV</button></div>
+                <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Место</th><th>Клиент</th><th>Начало</th><th>Конец</th><th>Стоимость</th><th>Статус</th></tr></thead><tbody id="recent-sessions-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- CLIENTS VIEW -->
+        <div id="view-clients" class="view-content hidden">
+            <div class="glass-card" style="padding:24px;">
+                <div class="section-header"><h3>👥 База клиентов</h3><div style="display:flex;gap:10px;align-items:center;"><input type="text" id="client-search" placeholder="🔍 Поиск..." class="search-input"><button class="btn-refresh" onclick="exportClientsCSV()">⬇ CSV</button></div></div>
+                <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Telegram</th><th>Имя</th><th>Ранг</th><th>Бонусы</th><th>Часы</th><th>Рефералы</th><th>Действия</th></tr></thead><tbody id="clients-table-body"></tbody></table></div>
+                <div class="pagination-row"><button class="btn-refresh" onclick="clientsPrevPage()">← Назад</button><span id="clients-page-info" class="place-meta"></span><button class="btn-refresh" onclick="clientsNextPage()">Вперед →</button></div>
+            </div>
+        </div>
+
+        <!-- BOOKINGS VIEW -->
+        <div id="view-bookings" class="view-content hidden">
+            <div class="bookings-stats" id="bookings-stats"></div>
+            <div class="glass-card" style="padding:24px;">
+                <div class="section-header"><h3>📅 Все бронирования</h3>
+                    <div style="display:flex;gap:10px;align-items:center;"><select id="booking-filter" class="filter-select" onchange="loadAllBookings()"><option value="">Все</option><option value="pending">Ожидающие</option><option value="confirmed">Подтвержденные</option><option value="canceled">Отмененные</option><option value="completed">Завершенные</option></select><button class="btn-refresh" onclick="exportBookingsCSV()">⬇ CSV</button></div>
+                </div>
+                <div class="table-wrap"><table class="data-table"><thead><tr><th>ID</th><th>Клиент</th><th>Место</th><th>Начало</th><th>Конец</th><th>Статус</th><th>Действия</th></tr></thead><tbody id="bookings-table-body"></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- MANAGEMENT VIEW -->
+        <div id="view-management" class="view-content hidden">
+            <div class="mgmt-grid">
+                <div class="glass-card" style="padding:24px;">
+                    <div class="section-header"><h3>💰 Тарифы</h3><button class="btn-add" onclick="openTariffModal()">+ Добавить</button></div>
+                    <div id="manage-tariffs-list" class="mgmt-list"></div>
+                </div>
+                <div class="glass-card" style="padding:24px;">
+                    <div class="section-header"><h3>🎁 Акции</h3><button class="btn-add btn-purple" onclick="openPromotionModal()">+ Добавить</button></div>
+                    <div id="manage-promotions-list" class="mgmt-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QR SCANNER VIEW -->
+        <div id="view-scanner" class="view-content hidden">
+            <div style="max-width:700px;margin:0 auto;">
+
+                <!-- Step 1: Scan -->
+                <div id="scan-step-1" class="glass-card p-card">
+                    <h3 style="margin-bottom:6px;">📷 Сканирование клиента</h3>
+                    <p style="color:var(--text-muted);margin-bottom:16px;font-size:13px;">Попросите гостя показать QR-код из Telegram бота</p>
+                    <div id="qr-reader" style="width:100%;border-radius:12px;overflow:hidden;margin-bottom:16px;"></div>
+                    <div style="display:flex;gap:10px;">
+                        <button onclick="startQRScanner()" class="btn-primary" id="btn-start-scan" style="flex:1;">📷 Начать сканирование</button>
+                        <button onclick="stopQRScanner()" class="btn-secondary" id="btn-stop-scan" style="flex:1;display:none;">⏹ Остановить</button>
+                    </div>
+                    <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.06);">
+                        <h4 style="margin-bottom:10px;font-size:14px;">🔢 Или вручную по Telegram ID</h4>
+                        <div style="display:flex;gap:10px;">
+                            <input type="number" id="manual-telegram-id" class="form-input" placeholder="Telegram ID клиента" style="flex:1;margin:0;">
+                            <button onclick="lookupManualId()" class="btn-primary" style="width:auto;padding:8px 24px;">Найти</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Client Found + Select Place + Duration + Start -->
+                <div id="scan-step-2" style="display:none;">
+                    <!-- Client Info -->
+                    <div class="glass-card p-card" style="margin-bottom:16px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                            <h3>✅ Клиент найден</h3>
+                            <button onclick="resetScanner()" class="btn-secondary" style="width:auto;padding:6px 16px;font-size:12px;">🔄 Другой клиент</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                            <div class="stat-mini glass-card"><div class="stat-mini-icon bg-blue">👤</div><div><div class="stat-mini-val" id="sc-name">—</div><div class="stat-mini-label">Имя</div></div></div>
+                            <div class="stat-mini glass-card"><div class="stat-mini-icon bg-purple">💎</div><div><div class="stat-mini-val" id="sc-rank">—</div><div class="stat-mini-label">Ранг</div></div></div>
+                            <div class="stat-mini glass-card"><div class="stat-mini-icon bg-green">💰</div><div><div class="stat-mini-val" id="sc-bonus">—</div><div class="stat-mini-label">Бонусы</div></div></div>
+                            <div class="stat-mini glass-card"><div class="stat-mini-icon bg-amber">⏳</div><div><div class="stat-mini-val" id="sc-hours">—</div><div class="stat-mini-label">Часов</div></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Select Place -->
+                    <div class="glass-card p-card" style="margin-bottom:16px;">
+                        <h3 style="margin-bottom:14px;">🎮 Выберите комнату</h3>
+                        <div id="scanner-places-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;"></div>
+                        <input type="hidden" id="scanner-place-id">
+                    </div>
+
+                    <!-- Duration -->
+                    <div class="glass-card p-card" style="margin-bottom:16px;">
+                        <h3 style="margin-bottom:14px;">⏱️ Длительность</h3>
+                        <div class="duration-grid">
+                            <button onclick="selectScanDuration(0,this)" class="dur-btn active">Открытое</button>
+                            <button onclick="selectScanDuration(60,this)" class="dur-btn">1ч</button>
+                            <button onclick="selectScanDuration(120,this)" class="dur-btn">2ч</button>
+                            <button onclick="selectScanDuration(180,this)" class="dur-btn">3ч</button>
+                            <button onclick="selectScanDuration(300,this)" class="dur-btn">5ч</button>
+                        </div>
+                        <input type="hidden" id="scanner-duration" value="0">
+                    </div>
+
+                    <!-- Start Button -->
+                    <button onclick="submitScanSession()" class="btn-primary" style="width:100%;padding:18px;font-size:16px;" id="btn-scan-start">
+                        🚀 Начать сессию
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <div id="startModal" class="modal-overlay hidden"><div class="modal-box"><div class="modal-head"><h3>✨ Начать сессию</h3><button onclick="closeModal('startModal')" class="modal-close">✕</button></div><div class="modal-body">
+        <label class="checkbox-row"><input type="checkbox" id="isGuest" onchange="toggleGuestMode()"><span>Гостевой режим</span></label>
+        <div id="telegramField" class="form-field"><label>Telegram ID</label><input type="number" id="telegramId" class="form-input"></div>
+        <div class="form-field"><label id="nameLabel">Имя клиента <small>(для новых)</small></label><input type="text" id="clientName" placeholder="Иван Иванов" class="form-input"></div>
+        <div class="form-field"><label>Длительность</label><div class="duration-grid">
+            <button onclick="selectDuration(0,this)" class="dur-btn active" data-m="0">Открытое</button>
+            <button onclick="selectDuration(60,this)" class="dur-btn" data-m="60">1ч</button>
+            <button onclick="selectDuration(120,this)" class="dur-btn" data-m="120">2ч</button>
+            <button onclick="selectDuration(180,this)" class="dur-btn" data-m="180">3ч</button>
+            <button onclick="selectDuration(300,this)" class="dur-btn" data-m="300">5ч</button>
+        </div><input type="hidden" id="duration" value="0"></div>
+        <div class="form-field"><label>Акция</label><select id="promotion" class="form-input"><option value="">Без акции</option></select></div>
+        <input type="hidden" id="placeId">
+        <div class="modal-actions"><button onclick="closeModal('startModal')" class="btn-secondary">Отмена</button><button onclick="submitStart()" class="btn-primary">Начать</button></div>
+    </div></div></div>
+
+    <div id="prolongModal" class="modal-overlay hidden"><div class="modal-box modal-sm"><div class="modal-head"><h3>⏱️ Продлить сессию</h3><button onclick="closeModal('prolongModal')" class="modal-close">✕</button></div><div class="modal-body">
+        <div class="duration-grid">
+            <button onclick="setProlongTime(30)" class="dur-btn">30м</button>
+            <button onclick="setProlongTime(60)" class="dur-btn active">1ч</button>
+            <button onclick="setProlongTime(120)" class="dur-btn">2ч</button>
+        </div>
+        <input type="hidden" id="prolongMinutes" value="60"><input type="hidden" id="prolongSessionId">
+        <div class="modal-actions"><button onclick="closeModal('prolongModal')" class="btn-secondary">Отмена</button><button onclick="submitProlong()" class="btn-primary">Продлить</button></div>
+    </div></div></div>
+
+    <div id="tariffModal" class="modal-overlay hidden"><div class="modal-box modal-sm"><div class="modal-head"><h3 id="tariffModalTitle">Добавить тариф</h3><button onclick="closeModal('tariffModal')" class="modal-close">✕</button></div><div class="modal-body">
+        <input type="hidden" id="tariffId">
+        <div class="form-field"><label>Название</label><input type="text" id="tariffName" class="form-input"></div>
+        <div class="form-field"><label>Цена за час (₽)</label><input type="number" id="tariffRate" class="form-input"></div>
+        <div class="form-field"><label>Описание</label><textarea id="tariffDesc" class="form-input" rows="3"></textarea></div>
+        <label class="checkbox-row"><input type="checkbox" id="tariffActive" checked><span>Активен</span></label>
+        <div class="modal-actions"><button onclick="closeModal('tariffModal')" class="btn-secondary">Отмена</button><button onclick="submitTariff()" class="btn-primary">Сохранить</button></div>
+    </div></div></div>
+
+    <div id="promotionModal" class="modal-overlay hidden"><div class="modal-box modal-sm"><div class="modal-head"><h3 id="promotionModalTitle">Добавить акцию</h3><button onclick="closeModal('promotionModal')" class="modal-close">✕</button></div><div class="modal-body">
+        <input type="hidden" id="promotionId">
+        <div class="form-field"><label>Название</label><input type="text" id="promotionName" class="form-input"></div>
+        <div class="form-field"><label>Скидка (%)</label><input type="number" id="promotionDiscount" class="form-input"></div>
+        <div class="form-field"><label>Описание</label><textarea id="promotionDesc" class="form-input" rows="3"></textarea></div>
+        <label class="checkbox-row"><input type="checkbox" id="promotionActive" checked><span>Активна</span></label>
+        <div class="modal-actions"><button onclick="closeModal('promotionModal')" class="btn-secondary">Отмена</button><button onclick="submitPromotion()" class="btn-primary-purple">Сохранить</button></div>
+    </div></div></div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

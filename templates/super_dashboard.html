@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ru" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberLounge - Super Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        gray: { 900: '#0b0f19', 800: '#111827', 700: '#1f2937', 600: '#374151' },
+                        primary: { 500: '#6366f1', 600: '#4f46e5' },
+                        accent: { 400: '#f472b6', 500: '#ec4899' },
+                        success: { 500: '#10b981' },
+                        warning: { 500: '#f59e0b' }
+                    },
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    boxShadow: {
+                        'neon': '0 0 10px rgba(99, 102, 241, 0.5), 0 0 20px rgba(99, 102, 241, 0.3)',
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0b0f19;
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(31, 41, 55, 0.6) 0%, rgba(17, 24, 39, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .nav-item.active {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border-left: 3px solid #6366f1;
+        }
+
+        .nav-item {
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b5563;
+        }
+
+        .animate-enter {
+            animation: enter 0.4s ease-out forwards;
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        @keyframes enter {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="text-gray-300 h-screen flex overflow-hidden selection:bg-primary-500 selection:text-white">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 glass-panel flex flex-col z-20 border-r border-gray-700/50">
+        <div class="h-16 flex items-center px-6 border-b border-gray-700/50">
+            <div
+                class="w-8 h-8 rounded bg-gradient-to-br from-primary-500 to-accent-500 flex items-center justify-center mr-3 shadow-neon">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+            </div>
+            <span class="text-xl font-bold text-white tracking-wide">Cyber<span
+                    class="text-primary-500">Lounge</span></span>
+        </div>
+
+        <nav class="flex-1 py-6 space-y-1">
+            <button onclick="switchTab('operational')" id="nav-operational"
+                class="nav-item active w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800/50 hover:text-white">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                    </path>
+                </svg>
+                Оперативный Режим
+            </button>
+            <button onclick="switchTab('analytics')" id="nav-analytics"
+                class="nav-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800/50 hover:text-white">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                    </path>
+                </svg>
+                Аналитика
+            </button>
+            <button onclick="switchTab('clients')" id="nav-clients"
+                class="nav-item w-full flex items-center px-6 py-3 text-sm font-medium hover:bg-gray-800/50 hover:text-white">
+                <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z">
+                    </path>
+                </svg>
+                Клиенты
+            </button>
+        </nav>
+
+        <div class="p-4 border-t border-gray-700/50">
+            <div class="glass-card rounded-xl p-4">
+                <div class="flex items-center mb-3">
+                    <div class="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></div>
+                    <span class="text-xs font-medium text-gray-400">Система активна</span>
+                </div>
+                <div class="text-xs text-gray-500">Версия 2.4.0 (Stable)</div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col overflow-hidden relative">
+        <!-- Top Bar -->
+        <header class="h-16 glass-panel border-b border-gray-700/50 flex justify-between items-center px-8 z-10">
+            <h1 id="page-title" class="text-xl font-semibold text-white">Оперативный Режим</h1>
+            <div class="flex items-center space-x-4">
+                <button onclick="fetchPlaceStatus()"
+                    class="p-2 rounded-lg hover:bg-gray-700/50 text-gray-400 hover:text-white transition-colors"
+                    title="Обновить данные">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15">
+                        </path>
+                    </svg>
+                </button>
+                <div class="h-8 w-px bg-gray-700"></div>
+                <div class="flex items-center space-x-3">
+                    <div class="text-right">
+                        <div class="text-sm font-medium text-white">Администратор</div>
+                        <div class="text-xs text-gray-500">Смена #42</div>
+                    </div>
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-700 border border-gray-600 flex items-center justify-center">
+                        <span class="font-bold text-gray-400">A</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Scrollable Area -->
+        <div class="flex-1 overflow-y-auto p-8 relative">
+
+            <!-- VIEW: OPERATIONAL -->
+            <div id="view-operational" class="grid grid-cols-12 gap-6 animate-enter">
+                <!-- Hall Map (Left, 9 cols) -->
+                <div class="col-span-12 lg:col-span-9 flex flex-col gap-6">
+                    <div class="glass-panel rounded-2xl p-6 min-h-[600px] relative">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg font-bold text-white">Карта Игрового Зала</h2>
+                            <div class="flex space-x-4 text-sm">
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-green-500/20 border border-green-500 mr-2">
+                                    </div>Свободно
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="w-3 h-3 rounded-full bg-primary-500/20 border border-primary-500 mr-2">
+                                    </div>Занято
+                                </div>
+                            </div>
+                        </div>
+                        <div id="places-grid" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <!-- Places injected via JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar (Right, 3 cols) -->
+                <div class="col-span-12 lg:col-span-3 flex flex-col gap-6">
+                    <!-- Hint Widget -->
+                    <div class="glass-panel rounded-2xl p-1 bg-gradient-to-b from-primary-500/20 to-transparent">
+                        <div class="bg-gray-900/90 rounded-xl p-5 h-full">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xl">💡</span>
+                                    <h3 class="font-bold text-white">Подсказка</h3>
+                                </div>
+                            </div>
+                            <div class="space-y-4">
+                                <div class="p-3 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                                    <p class="text-sm text-gray-200 leading-relaxed">Зеленые места свободны. Для старта сессии нажмите «Начать» на карточке места.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tariffs Widget -->
+                    <div class="glass-panel rounded-2xl p-5">
+                        <h3 class="font-bold text-white mb-4 flex items-center"><span class="mr-2">🏷️</span> Тарифы
+                        </h3>
+                        <div id="tariffs-list" class="space-y-3">
+                            <!-- Tariffs injected via JS -->
+                            <div class="animate-pulse flex space-x-4">
+                                <div class="flex-1 space-y-2 py-1">
+                                    <div class="h-2 bg-gray-700 rounded"></div>
+                                    <div class="h-2 bg-gray-700 rounded w-5/6"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: ANALYTICS -->
+            <div id="view-analytics" class="hidden space-y-6 animate-enter">
+                <!-- KPI Cards Row -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-16 h-16 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z"></path>
+                                <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z"></path>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Выручка (День)</p>
+                        <div class="mt-2 flex items-baseline">
+                            <span id="kpi-revenue" class="text-3xl font-bold text-white">0</span>
+                            <span class="ml-1 text-sm text-gray-500">₽</span>
+                        </div>
+                        <div class="mt-2 text-xs text-green-400 flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                            </svg>
+                            +12.5% к прошлому
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-16 h-16 text-accent-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Загрузка</p>
+                        <div class="mt-2 flex items-baseline">
+                            <span id="kpi-occupancy" class="text-3xl font-bold text-white">0</span>
+                            <span class="ml-1 text-sm text-gray-500">%</span>
+                        </div>
+                        <div class="mt-2 text-xs text-gray-500">Текущий момент</div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-16 h-16 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path>
+                                <path fill-rule="evenodd"
+                                    d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Средний Чек</p>
+                        <div class="mt-2 flex items-baseline">
+                            <span id="kpi-avg-check" class="text-3xl font-bold text-white">0</span>
+                            <span class="ml-1 text-sm text-gray-500">₽</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-6 rounded-2xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <svg class="w-16 h-16 text-warning-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path
+                                    d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z">
+                                </path>
+                            </svg>
+                        </div>
+                        <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Топ Место</p>
+                        <div class="mt-2">
+                            <span id="kpi-top-place" class="text-2xl font-bold text-white">N/A</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Main Line Chart (Income Dynamics) -->
+                    <div class="lg:col-span-2 glass-panel p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-white mb-6">Динамика Доходов</h3>
+                        <div class="h-80 w-full">
+                            <canvas id="incomeChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Pie Chart (Occupancy/Distribution) -->
+                    <div class="glass-panel p-6 rounded-2xl">
+                        <h3 class="text-lg font-bold text-white mb-6">Структура Выручки</h3>
+                        <div class="h-64 w-full flex justify-center">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center text-xs text-gray-400">
+                            Распределение по типам мест
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW: CLIENTS -->
+            <div id="view-clients" class="hidden animate-enter">
+                <div class="glass-panel rounded-2xl overflow-hidden">
+                    <div
+                        class="p-6 border-b border-gray-700/50 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h2 class="text-xl font-bold text-white">База Клиентов</h2>
+                        <div class="relative w-full sm:w-64">
+                            <input type="text" id="client-search" placeholder="Поиск по ID или имени..."
+                                class="w-full bg-gray-800 border border-gray-700 text-white text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block pl-10 p-2.5">
+                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-400">
+                            <thead class="text-xs text-gray-300 uppercase bg-gray-800/50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4">ID</th>
+                                    <th scope="col" class="px-6 py-4">Имя</th>
+                                    <th scope="col" class="px-6 py-4">Ранг</th>
+                                    <th scope="col" class="px-6 py-4">Бонусы</th>
+                                    <th scope="col" class="px-6 py-4">Часы</th>
+                                    <th scope="col" class="px-6 py-4 text-right">Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody id="clients-table-body" class="divide-y divide-gray-700/50">
+                                <!-- Clients injected -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODALS -->
+    <!-- Start Session Modal -->
+    <div id="startModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-[60]">
+        <div class="glass-panel border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-enter">
+            <h3 class="text-xl font-bold text-white mb-6">✨ Начать Сессию</h3>
+
+            <div class="mb-5 flex items-center p-3 bg-gray-800/50 rounded-lg border border-gray-700/50">
+                <input type="checkbox" id="isGuestCheckbox" onchange="toggleGuestMode()"
+                    class="w-4 h-4 text-primary-600 bg-gray-700 border-gray-600 rounded focus:ring-primary-500 focus:ring-offset-gray-800">
+                <label for="isGuestCheckbox" class="ml-3 text-sm font-medium text-gray-300">Гостевой режим</label>
+            </div>
+
+            <div class="space-y-4">
+                <div id="telegramIdField">
+                    <label class="text-sm text-gray-400 mb-1 block">Telegram ID</label>
+                    <input type="number" id="startTelegramId"
+                        class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        placeholder="123456">
+                </div>
+                <div>
+                    <label class="text-sm text-gray-400 mb-1 block" id="nameLabel">Имя клиента</label>
+                    <input type="text" id="startClientName"
+                        class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                        placeholder="Иван Иванов">
+                </div>
+                <input type="hidden" id="startPlaceId">
+                <div class="flex space-x-3 mt-6">
+                    <button onclick="closeModal('startModal')"
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2.5 rounded-lg transition-all">Отмена</button>
+                    <button onclick="submitStart()"
+                        class="flex-1 bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-500 hover:to-primary-400 text-white py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-primary-500/20">🚀
+                        Начать</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prolong Modal -->
+    <div id="prolongModal"
+        class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center z-[60]">
+        <div class="glass-panel border border-gray-700 rounded-2xl shadow-2xl w-full max-w-sm p-6 animate-enter">
+            <h3 class="text-xl font-bold text-white mb-6">⏱️ Продлить Сессию</h3>
+            <div class="space-y-5">
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="setProlongTime(30)"
+                        class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white py-2 rounded-lg text-sm transition-all">30
+                        мин</button>
+                    <button onclick="setProlongTime(60)"
+                        class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white py-2 rounded-lg text-sm transition-all">1
+                        час</button>
+                    <button onclick="setProlongTime(120)"
+                        class="bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white py-2 rounded-lg text-sm transition-all">2
+                        часа</button>
+                </div>
+                <div>
+                    <label class="text-sm text-gray-400 mb-1 block">Минуты</label>
+                    <input type="number" id="prolongMinutes"
+                        class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-2.5 text-white focus:ring-2 focus:ring-primary-500 outline-none"
+                        value="60">
+                </div>
+                <input type="hidden" id="prolongSessionId">
+                <div class="flex space-x-3 mt-2">
+                    <button onclick="closeModal('prolongModal')"
+                        class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2.5 rounded-lg transition-all">Отмена</button>
+                    <button onclick="submitProlong()"
+                        class="flex-1 bg-primary-600 hover:bg-primary-500 text-white py-2.5 rounded-lg font-medium transition-all">Продлить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CORE LOGIC ---
+        let currentTab = 'operational';
+        let clientsData = [];
+        let incomeChart = null;
+        let distributionChart = null;
+
+        // Helper to get CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function switchTab(tab) {
+            // Update Nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById(`nav-${tab}`).classList.add('active');
+
+            // Update View
+            ['operational', 'analytics', 'clients'].forEach(t => {
+                document.getElementById(`view-${t}`).classList.add('hidden');
+            });
+            document.getElementById(`view-${tab}`).classList.remove('hidden');
+
+            // Update Title
+            const titles = {
+                'operational': 'Оперативный Режим',
+                'analytics': 'Аналитика и Отчеты',
+                'clients': 'Управление Клиентами'
+            };
+            document.getElementById('page-title').textContent = titles[tab];
+
+            currentTab = tab;
+            if (tab === 'operational') { fetchPlaceStatus(); fetchTariffs(); }
+            if (tab === 'analytics') loadAnalytics();
+            if (tab === 'clients') loadClients();
+        }
+
+        // --- OPERATIONAL ---
+        async function fetchPlaceStatus() {
+            try {
+                const res = await fetch('/api/place_status/');
+                const places = await res.json();
+                const grid = document.getElementById('places-grid');
+                grid.innerHTML = '';
+
+                places.forEach(place => {
+                    const isFree = place.status === 'free';
+                    const baseClass = "glass-card p-4 rounded-xl border relative overflow-hidden group";
+                    const statusClass = isFree ? "border-green-500/30 hover:border-green-500/60" : "border-primary-500/30 hover:border-primary-500/60";
+
+                    const card = document.createElement('div');
+                    card.className = `${baseClass} ${statusClass}`;
+
+                    let content = `
+                        <div class="flex justify-between items-start mb-3">
+                            <h3 class="font-bold text-white text-lg">${place.name}</h3>
+                            <div class="w-2 h-2 rounded-full ${isFree ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-primary-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]'}"></div>
+                        </div>
+                    `;
+
+                    if (isFree) {
+                        content += `
+                            <div class="h-12 flex items-center text-gray-500 text-sm">Свободно</div>
+                            <button onclick="openStartModal(${place.id})" class="w-full mt-2 py-2 rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 transition-all text-sm font-medium">✨ Начать</button>
+                        `;
+                    } else {
+                        const session = place.active_session;
+                        if (session) {
+                            const endTimeAttr = session.end_time ? `data-end-time="${session.end_time}"` : '';
+                            content += `
+                            <div class="space-y-1 mb-3">
+                                <div class="flex items-center text-xs text-gray-300">
+                                    <span class="w-4 opacity-50">👤</span> ${place.client_name}
+                                </div>
+                                <div class="flex items-center justify-between text-xs text-gray-300">
+                                    <div class="flex items-center">
+                                        <span class="w-4 opacity-50">🕐</span> ${new Date(session.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                    <div class="font-mono font-bold text-accent-400 session-timer" ${endTimeAttr}>
+                                        --:--
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="openProlongModal(${session.id})" class="py-1.5 rounded bg-gray-700 hover:bg-gray-600 text-xs text-white transition-all">Продлить</button>
+                                <button onclick="stopSession(${session.id})" class="py-1.5 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20 text-xs transition-all">Стоп</button>
+                            </div>
+                        `;
+                        } else {
+                            content += `<div class="h-12 flex items-center text-yellow-500 text-sm">Занято (ошибка данных)</div>`;
+                        }
+                    }
+
+                    card.innerHTML = content;
+                    grid.appendChild(card);
+                });
+                updateTimers();
+            } catch (e) { console.error(e); }
+        }
+
+        function updateTimers() {
+            document.querySelectorAll('.session-timer').forEach(el => {
+                const endTimeStr = el.getAttribute('data-end-time');
+                if (!endTimeStr) {
+                    el.textContent = '∞';
+                    return;
+                }
+
+                const endTime = new Date(endTimeStr).getTime();
+                const now = new Date().getTime();
+                const diff = endTime - now;
+
+                if (diff <= 0) {
+                    el.textContent = '⌛ 00:00';
+                    el.classList.add('text-red-500', 'animate-pulse');
+                    el.classList.remove('text-accent-400');
+                } else {
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    const hStr = hours > 0 ? `${hours}:` : '';
+                    const mStr = minutes < 10 ? `0${minutes}` : minutes;
+                    const sStr = seconds < 10 ? `0${seconds}` : seconds;
+                    el.textContent = `⏱️ ${hStr}${mStr}:${sStr}`;
+                    el.classList.remove('text-red-500', 'animate-pulse');
+                    el.classList.add('text-accent-400');
+                }
+            });
+        }
+
+        setInterval(updateTimers, 1000);
+
+        async function fetchTariffs() {
+            try {
+                const res = await fetch('/api/tariffs/');
+                const tariffs = await res.json();
+                const container = document.getElementById('tariffs-list');
+                container.innerHTML = '';
+                tariffs.forEach(t => {
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center p-3 rounded-lg bg-gray-800/40 border border-gray-700/50">
+                            <div>
+                                <div class="text-sm font-medium text-white">${t.name}</div>
+                                <div class="text-[10px] text-gray-500">${t.description || ''}</div>
+                            </div>
+                            <div class="text-sm font-bold text-primary-400">${t.hourly_rate}₽</div>
+                        </div>`;
+                });
+            } catch (e) { console.error(e); }
+        }
+
+        async function loadAnalytics() {
+            try {
+                const res = await fetch('/api/manager_stats/');
+                const data = await res.json();
+                
+                document.getElementById('kpi-revenue').textContent = data.daily_revenue || 0;
+                document.getElementById('kpi-occupancy').textContent = data.occupancy_rate || 0;
+                document.getElementById('kpi-avg-check').textContent = data.avg_check || 0;
+                document.getElementById('kpi-top-place').textContent = data.top_place || 'N/A';
+
+                renderCharts(data);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderCharts(data) {
+            const ctx1 = document.getElementById('incomeChart').getContext('2d');
+            if (incomeChart) incomeChart.destroy();
+
+            incomeChart = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'Выручка',
+                        data: [0, 0, 0, 0, 0, 0], 
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
+                        x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                    }
+                }
+            });
+
+            const ctx2 = document.getElementById('distributionChart').getContext('2d');
+            if (distributionChart) distributionChart.destroy();
+
+            distributionChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Стандарт', 'VIP', 'Буткемп'],
+                    datasets: [{
+                        data: [65, 25, 10], 
+                        backgroundColor: ['#6366f1', '#ec4899', '#10b981'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#9ca3af', usePointStyle: true } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        async function loadClients() {
+            try {
+                const res = await fetch('/api/clients/');
+                clientsData = await res.json();
+                renderClients(clientsData);
+            } catch (e) { console.error(e); }
+        }
+
+        function renderClients(clients) {
+            const tbody = document.getElementById('clients-table-body');
+            tbody.innerHTML = '';
+            clients.forEach(client => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-700/30 transition-colors">
+                        <td class="px-6 py-4 font-mono text-xs text-gray-500">${client.id}</td>
+                        <td class="px-6 py-4 font-medium text-white">${client.name}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs bg-gray-800 border border-gray-700 text-gray-300">${client.rank}</span></td>
+                        <td class="px-6 py-4 font-bold text-accent-400">${client.bonus_points}</td>
+                        <td class="px-6 py-4 text-gray-400">${client.total_hours_played}</td>
+                        <td class="px-6 py-4 text-right">
+                            <button class="text-gray-500 hover:text-white transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('client-search').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = clientsData.filter(c =>
+                c.name.toLowerCase().includes(term) ||
+                String(c.id).includes(term)
+            );
+            renderClients(filtered);
+        });
+
+        // --- MODAL LOGIC ---
+        function openStartModal(placeId) {
+            document.getElementById('startPlaceId').value = placeId;
+            document.getElementById('startModal').classList.remove('hidden');
+            document.getElementById('isGuestCheckbox').checked = false;
+            toggleGuestMode();
+            document.getElementById('startTelegramId').value = '';
+            document.getElementById('startClientName').value = '';
+        }
+
+        function toggleGuestMode() {
+            const isGuest = document.getElementById('isGuestCheckbox').checked;
+            const tgField = document.getElementById('telegramIdField');
+            const nameLabel = document.getElementById('nameLabel');
+            const nameInput = document.getElementById('startClientName');
+
+            if (isGuest) {
+                tgField.classList.add('hidden');
+                nameLabel.innerHTML = 'Имя гостя <span class="text-red-400">*</span>';
+                nameInput.placeholder = 'Введите имя гостя';
+            } else {
+                tgField.classList.remove('hidden');
+                nameLabel.innerHTML = 'Имя клиента <span class="text-gray-500">(опционально)</span>';
+                nameInput.placeholder = 'Иван Иванов';
+            }
+        }
+
+        async function submitStart() {
+            const placeId = document.getElementById('startPlaceId').value;
+            const telegramId = document.getElementById('startTelegramId').value;
+            const clientName = document.getElementById('startClientName').value.trim();
+            const isGuest = document.getElementById('isGuestCheckbox').checked;
+
+            if (!isGuest && !telegramId) return alert('Введите Telegram ID');
+            if (isGuest && !clientName) return alert('Введите имя гостя');
+
+            try {
+                const payload = { place_id: placeId, is_guest: isGuest };
+                if (isGuest) payload.guest_name = clientName;
+                else {
+                    payload.telegram_id = telegramId;
+                    if (clientName) payload.client_name = clientName;
+                }
+
+                const res = await fetch('/api/start_session/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    closeModal('startModal');
+                    fetchPlaceStatus();
+                    alert('✅ Сессия начата!');
+                } else {
+                    const error = await res.json();
+                    alert('❌ Ошибка: ' + (error.error || 'Unknown'));
+                }
+            } catch (e) { alert('❌ Ошибка соединения'); }
+        }
+
+        function openProlongModal(id) {
+            document.getElementById('prolongSessionId').value = id;
+            document.getElementById('prolongModal').classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function setProlongTime(min) {
+            document.getElementById('prolongMinutes').value = min;
+        }
+
+        async function submitProlong() {
+            const id = document.getElementById('prolongSessionId').value;
+            const min = document.getElementById('prolongMinutes').value;
+            try {
+                const res = await fetch('/api/prolong_session/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ session_id: id, minutes_to_add: min })
+                });
+                if (res.ok) {
+                    closeModal('prolongModal');
+                    fetchPlaceStatus();
+                    alert('✅ Продлено!');
+                } else {
+                    const error = await res.json();
+                    alert('❌ Ошибка: ' + (error.error || 'Неизвестная ошибка'));
+                }
+            } catch (e) { console.error(e); alert('❌ Ошибка соединения'); }
+        }
+
+        async function stopSession(id) {
+            if (!confirm('Завершить сессию?')) return;
+            try {
+                const res = await fetch(`/api/stop_session/${id}/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+                if (res.ok) {
+                    fetchPlaceStatus();
+                    alert('✅ Завершено!');
+                } else {
+                    const error = await res.json();
+                    alert('❌ Ошибка: ' + (error.error || 'Неизвестная ошибка'));
+                }
+            } catch (e) { console.error(e); alert('❌ Ошибка соединения'); }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPlaceStatus();
+            fetchTariffs();
+            setInterval(() => { if (currentTab === 'operational') fetchPlaceStatus(); }, 30000);
+        });
+    </script>
+</body>
+
+</html>
